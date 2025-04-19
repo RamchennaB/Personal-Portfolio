@@ -746,39 +746,57 @@
             const result = document.getElementById('result');
 
             if (contactForm) {
-                contactForm.addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    const formData = new FormData(contactForm);
-                    const object = Object.fromEntries(formData);
-                    const json = JSON.stringify(object);
-                    
-                    fetch('https://api.web3forms.com/submit', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json'
-                        },
-                        body: json
-                    })
-                    .then(async (response) => {
-                        let json = await response.json();
-                        if (response.status == 200) {
-                            result.innerHTML = "Form submitted successfully";
-                        } else {
-                            console.log(response);
-                            result.innerHTML = json.message;
-                        }
-                    })
-                    .catch(error => {
-                        console.log(error);
-                    })
-                    .then(function() {
-                        contactForm.reset();
-                    });
-                });
+    const result = document.getElementById('result'); // Make sure you have this element in your HTML
+    
+    contactForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(contactForm);
+        const object = Object.fromEntries(formData);
+        const json = JSON.stringify(object);
+        
+        fetch('https://api.web3forms.com/submit', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: json
+        })
+        .then(async (response) => {
+            let json = await response.json();
+            if (response.status == 200) {
+                // Create and show popup for successful submission
+                const popup = document.createElement('div');
+                popup.className = 'success-popup';
+                popup.textContent = 'Form submitted successfully!';
+                popup.style.position = 'fixed';
+                popup.style.top = '50%';
+                popup.style.left = '50%';
+                popup.style.transform = 'translate(-50%, -50%)';
+                popup.style.padding = '20px';
+                popup.style.backgroundColor = '#4CAF50';
+                popup.style.color = 'white';
+                popup.style.borderRadius = '5px';
+                popup.style.boxShadow = '0 4px 8px rgba(0,0,0,0.2)';
+                popup.style.zIndex = '1000';
+                
+                document.body.appendChild(popup);
+                
+                // Remove popup after 3 seconds
+                setTimeout(() => {
+                    document.body.removeChild(popup);
+                }, 3000);
             } else {
-                console.error('contactForm element not found.');
+                console.log(response);
+                result.innerHTML = json.message;
             }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            result.innerHTML = "Something went wrong!";
+        });
+    });
+}
             
             // Add animation to project cards on scroll
             const cards = document.querySelectorAll('.project-card');
